@@ -214,7 +214,7 @@ class CargoStore {
 					$tableFieldValues[$fieldName] = null;
 				}
 			}
-			if ( $fieldDescription->mRegex != null && !preg_match( '/^' . $fieldDescription->mRegex . '$/', $fieldValue ) ) {
+			if ( $fieldDescription->mRegex != null && !preg_match( '/^' . $fieldDescription->mRegex . '$/'  ?? '', $fieldValue ) ) {
 				if ( $fieldDescription->mIsMandatory ) {
 					return "Cannot store mandatory field \"$fieldName\" as the value does not match the field's regex constraint.";
 				}

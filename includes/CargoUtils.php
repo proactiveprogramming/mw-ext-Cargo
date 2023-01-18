@@ -1043,7 +1043,7 @@ class CargoUtils {
 
 		foreach ( $degreesSymbols as $degreesSymbol ) {
 			$pattern = '/([\d\.]+)' . $degreesSymbol . '/u';
-			if ( preg_match( $pattern, $coordinateStr, $matches ) ) {
+			if ( preg_match( $pattern, $coordinateStr ?? '', $matches ) ) {
 				$numDegrees = floatval( $matches[1] );
 				break;
 			}
@@ -1054,7 +1054,7 @@ class CargoUtils {
 
 		foreach ( $minutesSymbols as $minutesSymbol ) {
 			$pattern = '/([\d\.]+)' . $minutesSymbol . '/u';
-			if ( preg_match( $pattern, $coordinateStr, $matches ) ) {
+			if ( preg_match( $pattern, $coordinateStr ?? '', $matches ) ) {
 				$numMinutes = floatval( $matches[1] );
 				break;
 			}
@@ -1067,7 +1067,7 @@ class CargoUtils {
 
 		foreach ( $secondsSymbols as $secondsSymbol ) {
 			$pattern = '/(\d+)' . $secondsSymbol . '/u';
-			if ( preg_match( $pattern, $coordinateStr, $matches ) ) {
+			if ( preg_match( $pattern, $coordinateStr ?? '', $matches ) ) {
 				$numSeconds = floatval( $matches[1] );
 				break;
 			}
@@ -1272,14 +1272,14 @@ class CargoUtils {
 	public static function validateHierarchyStructure( $hierarchyStructure ) {
 		$hierarchyNodesArray = explode( "\n", $hierarchyStructure );
 		$matches = [];
-		preg_match( '/^([*]*)[^*]*/i', $hierarchyNodesArray[0], $matches );
+		preg_match( '/^([*]*)[^*]*/i', $hierarchyNodesArray[0] ?? '', $matches );
 		if ( strlen( $matches[1] ) != 1 ) {
 			throw new MWException( "Error: First entry of hierarchy values should start with exact one '*', the entry \"" .
 				$hierarchyNodesArray[0] . "\" has " . strlen( $matches[1] ) . " '*'" );
 		}
 		$level = 0;
 		foreach ( $hierarchyNodesArray as $node ) {
-			if ( !preg_match( '/^([*]*)( *)(.*)/i', $node, $matches ) ) {
+			if ( !preg_match( '/^([*]*)( *)(.*)/i', $node ?? '', $matches ) ) {
 				throw new MWException( "Error: The \"" . $node . "\" entry of hierarchy values does not follow syntax. " .
 					"The entry should be of the form : * entry" );
 			}
@@ -1299,7 +1299,7 @@ class CargoUtils {
 	}
 
 	public static function validateFieldDescriptionString( $fieldDescriptionStr ) {
-		$hasParameterFormat = preg_match( '/^([^(]*)\s*\((.*)\)$/s', $fieldDescriptionStr, $matches );
+		$hasParameterFormat = preg_match( '/^([^(]*)\s*\((.*)\)$/s', $fieldDescriptionStr ?? '', $matches );
 
 		if ( !$hasParameterFormat ) {
 			if ( self::stringContainsParentheses( $fieldDescriptionStr ) ) {

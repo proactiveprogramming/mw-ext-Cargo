@@ -122,7 +122,7 @@ class CargoSQLQuery {
 		// HTML-encodes the value, which leads to a '#' in the string.
 		$decodedWhereStr = html_entity_decode( $whereStr, ENT_QUOTES );
 		foreach ( $whereStrRegexps as $regexp => $displayString ) {
-			if ( preg_match( $regexp, $decodedWhereStr ) ) {
+			if ( preg_match( $regexp, $decodedWhereStr  ?? '') ) {
 				throw new MWException( "Error in \"where\" parameter: the string \"$displayString\" cannot be used within #cargo_query." );
 			}
 		}
@@ -146,15 +146,15 @@ class CargoSQLQuery {
 			'/#/' => '#',
 		];
 		foreach ( $regexps as $regexp => $displayString ) {
-			if ( preg_match( $regexp, $tablesStr ) ||
-				preg_match( $regexp, $noQuotesFieldsStr ) ||
-				preg_match( $regexp, $noQuotesWhereStr ) ||
-				preg_match( $regexp, $noQuotesJoinOnStr ) ||
-				preg_match( $regexp, $noQuotesGroupByStr ) ||
-				preg_match( $regexp, $noQuotesHavingStr ) ||
-				preg_match( $regexp, $noQuotesOrderByStr ) ||
-				preg_match( $regexp, (string)$limitStr ) ||
-				preg_match( $regexp, (string)$offsetStr ) ) {
+			if ( preg_match( $regexp, $tablesStr ?? '' ) ||
+				preg_match( $regexp, $noQuotesFieldsStr  ?? '') ||
+				preg_match( $regexp, $noQuotesWhereStr  ?? '') ||
+				preg_match( $regexp, $noQuotesJoinOnStr  ?? '') ||
+				preg_match( $regexp, $noQuotesGroupByStr  ?? '') ||
+				preg_match( $regexp, $noQuotesHavingStr  ?? '') ||
+				preg_match( $regexp, $noQuotesOrderByStr  ?? '') ||
+				preg_match( $regexp, (string)$limitStr  ?? '') ||
+				preg_match( $regexp, (string)$offsetStr  ?? '') ) {
 				throw new MWException( "Error: the string \"$displayString\" cannot be used within #cargo_query." );
 			}
 		}
@@ -512,7 +512,7 @@ class CargoSQLQuery {
 
 		$sqlFunctionMatches = [];
 		$sqlFunctionRegex = '/(\b|\W)(\w*?)\s*\(/';
-		preg_match_all( $sqlFunctionRegex, $str, $sqlFunctionMatches );
+		preg_match_all( $sqlFunctionRegex, $str ?? '', $sqlFunctionMatches );
 		$sqlFunctions = array_map( 'strtoupper', $sqlFunctionMatches[2] );
 		$sqlFunctions = array_map( 'trim', $sqlFunctions );
 		// Throw an error if any of these functions
@@ -552,7 +552,7 @@ class CargoSQLQuery {
 		// handle accented and other non-ASCII characters in
 		// table and field names.
 		$fieldPattern = '/^([-_\p{L}0-9$]+)([.]([-_\p{L}0-9$]+))?$/u';
-		$fieldPatternFound = preg_match( $fieldPattern, $origFieldName, $fieldPatternMatches );
+		$fieldPatternFound = preg_match( $fieldPattern, $origFieldName ?? '', $fieldPatternMatches );
 		$stringPatternFound = false;
 		$hasFunctionCall = false;
 
@@ -568,7 +568,7 @@ class CargoSQLQuery {
 			}
 		} else {
 			$stringPattern = '/^(([\'"]).*?\2)(.+)?$/';
-			$stringPatternFound = preg_match( $stringPattern, $origFieldName, $stringPatternMatches );
+			$stringPatternFound = preg_match( $stringPattern, $origFieldName ?? '', $stringPatternMatches );
 			if ( $stringPatternFound ) {
 				// If the count is 3 we have a single quoted string
 				// If the count is 4 we have stuff after it
@@ -579,7 +579,7 @@ class CargoSQLQuery {
 				$noQuotesOrigFieldName = CargoUtils::removeQuotedStrings( $origFieldName );
 
 				$functionCallPattern = '/\p{L}\s*\(/';
-				$hasFunctionCall = preg_match( $functionCallPattern, $noQuotesOrigFieldName );
+				$hasFunctionCall = preg_match( $functionCallPattern, $noQuotesOrigFieldName ?? '');
 			}
 		}
 		// If it's a pre-defined field, we probably know its type.
@@ -801,18 +801,18 @@ class CargoSQLQuery {
 		$notOperator = $notOperation ? 'NOT' : '';
 		$patternMatch = [];
 		// Match HOLDS syntax with values in single quotes
-		if ( preg_match_all( $rootPattern . '\s*(\'.*?[^\\\\\']\')/i', $subject, $matches ) ) {
+		if ( preg_match_all( $rootPattern . '\s*(\'.*?[^\\\\\']\')/i', $subject ?? '', $matches ) ) {
 			$pattern = $rootPattern . '\s*(\'.*?[^\\\\\']\')/i';
 			$patternMatch[$pattern] = $matches;
 		}
 		// Match HOLDS syntax with values in double quotes
-		if ( preg_match_all( $rootPattern . '\s*(\".*?[^\\\"]\")/i', $subject, $matches ) ) {
+		if ( preg_match_all( $rootPattern . '\s*(\".*?[^\\\"]\")/i', $subject ?? '', $matches ) ) {
 			$pattern = $rootPattern . '\s*(\".*?[^\\\"]\")/i';
 			$patternMatch[$pattern] = $matches;
 		}
 		// Match HOLDS syntax with fieldnames without quotes.
 		// Fieldnames are expected to be single words without spaces.
-		if ( preg_match_all( $rootPattern . '\s*([^\'"\s]+\s*)/i', $subject, $matches ) ) {
+		if ( preg_match_all( $rootPattern . '\s*([^\'"\s]+\s*)/i', $subject ?? '', $matches ) ) {
 			$pattern = $rootPattern . '\s*([^\'"\s]*\s*)/i';
 			$patternMatch[$pattern] = $matches;
 		}
@@ -902,7 +902,7 @@ class CargoSQLQuery {
 				];
 
 			for ( $i = 0; $i < 2; $i++ ) {
-				if ( preg_match( $patternSimple[$i], $this->mWhereStr ) ) {
+				if ( preg_match( $patternSimple[$i], $this->mWhereStr  ?? '') ) {
 
 					$this->substVirtualFieldName(
 						$this->mWhereStr,
@@ -944,7 +944,7 @@ class CargoSQLQuery {
 						$fieldReplaced
 					);
 
-					if ( preg_match( $patternSimple[$i], $this->mWhereStr ) ) {
+					if ( preg_match( $patternSimple[$i], $this->mWhereStr  ?? '') ) {
 						if ( $isHierarchy ) {
 							throw new MWException( "Error: operator for the hierarchy field '" .
 								"$tableName.$fieldName' must be 'HOLDS', 'HOLDS NOT', '" .
@@ -1018,12 +1018,12 @@ class CargoSQLQuery {
 			$tableAlias = $virtualField['tableAlias'];
 			$tableName = $virtualField['tableName'];
 			$pattern1 = CargoUtils::getSQLTableAndFieldPattern( $tableName, $fieldName );
-			$foundMatch1 = preg_match( $pattern1, $this->mGroupByStr, $matches );
+			$foundMatch1 = preg_match( $pattern1, $this->mGroupByStr ?? '', $matches );
 			$pattern2 = CargoUtils::getSQLFieldPattern( $fieldName );
 			$foundMatch2 = false;
 
 			if ( !$foundMatch1 ) {
-				$foundMatch2 = preg_match( $pattern2, $this->mGroupByStr, $matches );
+				$foundMatch2 = preg_match( $pattern2, $this->mGroupByStr ?? '', $matches );
 			}
 			if ( $foundMatch1 || $foundMatch2 ) {
 				$fieldTableName = $tableName . '__' . $fieldName;
@@ -1097,10 +1097,10 @@ class CargoSQLQuery {
 			$pattern2 = CargoUtils::getSQLFieldPattern( $fieldName );
 			$foundMatch1 = $foundMatch2 = false;
 			foreach ( $this->mOrderBy as &$orderByElem ) {
-				$foundMatch1 = preg_match( $pattern1, $orderByElem, $matches );
+				$foundMatch1 = preg_match( $pattern1, $orderByElem ?? '', $matches );
 
 				if ( !$foundMatch1 ) {
-					$foundMatch2 = preg_match( $pattern2, $orderByElem, $matches );
+					$foundMatch2 = preg_match( $pattern2, $orderByElem ?? '', $matches );
 				}
 				if ( !$foundMatch1 && !$foundMatch2 ) {
 					continue;
@@ -1204,10 +1204,10 @@ class CargoSQLQuery {
 			$patternSuffix = '(\s+NEAR\s*)\(([^)]*)\)/i';
 
 			$pattern1 = CargoUtils::getSQLTableAndFieldPattern( $tableAlias, $fieldName, false ) . $patternSuffix;
-			$foundMatch1 = preg_match( $pattern1, $this->mWhereStr, $matches );
+			$foundMatch1 = preg_match( $pattern1, $this->mWhereStr ?? '', $matches );
 			if ( !$foundMatch1 ) {
 				$pattern2 = CargoUtils::getSQLFieldPattern( $fieldName, false ) . $patternSuffix;
-				$foundMatch2 = preg_match( $pattern2, $this->mWhereStr, $matches );
+				$foundMatch2 = preg_match( $pattern2, $this->mWhereStr ?? '', $matches );
 			}
 			if ( $foundMatch1 || $foundMatch2 ) {
 				// If no "NEAR", throw an error.
@@ -1315,10 +1315,10 @@ class CargoSQLQuery {
 			$completeMatch = false;
 			$patternRoot = "";
 
-			if ( preg_match( $patternSimple[0], $this->mWhereStr ) ) {
+			if ( preg_match( $patternSimple[0], $this->mWhereStr  ?? '') ) {
 				$simpleMatch = true;
 				$patternRoot = $patternRootArray[0];
-			} elseif ( preg_match( $patternSimple[1], $this->mWhereStr ) ) {
+			} elseif ( preg_match( $patternSimple[1], $this->mWhereStr ?? '' ) ) {
 				$simpleMatch = true;
 				$patternRoot = $patternRootArray[1];
 			}
@@ -1337,7 +1337,7 @@ class CargoSQLQuery {
 			$rightFieldName = $this->mCargoDB->addIdentifierQuotes( "_right" );
 			$valueFieldName = $this->mCargoDB->addIdentifierQuotes( "_value" );
 
-			if ( preg_match( $patternRoot . '(\s+HOLDS WITHIN\s+)' . $patternSuffix, $this->mWhereStr, $matches ) ) {
+			if ( preg_match( $patternRoot . '(\s+HOLDS WITHIN\s+)' . $patternSuffix, $this->mWhereStr ?? '', $matches ) ) {
 				if ( !$fieldIsList ) {
 					throw new MWException( "Error: \"HOLDS WITHIN\" cannot be used for single hierarchy field, use \"WITHIN\" instead." );
 				}
@@ -1355,7 +1355,7 @@ class CargoSQLQuery {
 				$newWhere = " " . $tableName . "._ID" . " IN " . $subquery;
 			}
 
-			if ( preg_match( $patternRoot . '(\s+WITHIN\s+)' . $patternSuffix, $this->mWhereStr, $matches ) ) {
+			if ( preg_match( $patternRoot . '(\s+WITHIN\s+)' . $patternSuffix, $this->mWhereStr ?? '', $matches ) ) {
 				if ( $fieldIsList ) {
 					throw new MWException( "Error: \"WITHIN\" cannot be used for list hierarchy field, use \"HOLDS WITHIN\" instead." );
 				}
@@ -1498,7 +1498,7 @@ class CargoSQLQuery {
 			];
 			$matchingPattern = null;
 			foreach ( $patterns as $i => $pattern ) {
-				$foundMatch = preg_match( $pattern, $this->mWhereStr, $matches );
+				$foundMatch = preg_match( $pattern, $this->mWhereStr ?? '', $matches );
 				if ( $foundMatch ) {
 					$matchingPattern = $i;
 					break;

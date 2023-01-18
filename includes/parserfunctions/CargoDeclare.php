@@ -92,7 +92,7 @@ class CargoDeclare {
 	 * @return string|null
 	 */
 	public static function validateFieldOrTableName( $name, $type ) {
-		if ( preg_match( '/\s/', $name ) ) {
+		if ( preg_match( '/\s/', $name  ?? '') ) {
 			return wfMessage( "cargo-declare-validate-has-whitespace", $type, $name )->parse();
 		} elseif ( strpos( $name, '_' ) === 0 ) {
 			return wfMessage( "cargo-declare-validate-starts-underscore", $type, $name )->parse();
@@ -100,7 +100,7 @@ class CargoDeclare {
 			return wfMessage( "cargo-declare-validate-ends-underscore", $type, $name )->parse();
 		} elseif ( strpos( $name, '__' ) !== false ) {
 			return wfMessage( "cargo-declare-validate-gt1-underscore", $type, $name )->parse();
-		} elseif ( preg_match( '/[\.,\-<>(){}\[\]\\\\\/]/', $name ) ) {
+		} elseif ( preg_match( '/[\.,\-<>(){}\[\]\\\\\/]/', $name  ?? '') ) {
 			return wfMessage( "cargo-declare-validate-bad-character", $type, $name, '.,-<>(){}[]\/' )->parse();
 		} elseif ( in_array( strtolower( $name ), self::$sqlReservedWords ) ) {
 			return wfMessage( "cargo-declare-validate-name-sql-kw", $name, $type )->parse();
@@ -150,7 +150,7 @@ class CargoDeclare {
 				foreach ( $tables as $table ) {
 					$parentTable = [];
 					$parentTableAlias = '';
-					$foundMatch = preg_match( '/([^(]*)\s*\((.*)\)/s', $table, $matches );
+					$foundMatch = preg_match( '/([^(]*)\s*\((.*)\)/s', $table ?? '', $matches );
 					if ( $foundMatch ) {
 						$parentTableName = trim( $matches[1] );
 						if ( count( $matches ) >= 2 ) {
@@ -216,7 +216,7 @@ class CargoDeclare {
 			} elseif ( $key == '_drilldownTabs' ) {
 				$value = CargoUtils::smartSplit( ',', $value );
 				foreach ( $value as $tabValues ) {
-					$foundMatch = preg_match_all( '/([^(]*)\s*\(?([^)]*)\)?/s', $tabValues, $matches );
+					$foundMatch = preg_match_all( '/([^(]*)\s*\(?([^)]*)\)?/s', $tabValues ?? '', $matches );
 					if ( $foundMatch == false ) {
 						continue;
 					}

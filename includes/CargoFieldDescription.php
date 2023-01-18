@@ -33,7 +33,7 @@ class CargoFieldDescription {
 
 		if ( strpos( strtolower( $fieldDescriptionStr ), 'list' ) === 0 ) {
 			$matches = [];
-			$foundMatch = preg_match( '/[Ll][Ii][Ss][Tt] \((.*)\) [Oo][Ff] (.*)/is', $fieldDescriptionStr, $matches );
+			$foundMatch = preg_match( '/[Ll][Ii][Ss][Tt] \((.*)\) [Oo][Ff] (.*)/is', $fieldDescriptionStr ?? '', $matches );
 			if ( !$foundMatch ) {
 				// Return a true error message here?
 				return null;
@@ -47,7 +47,7 @@ class CargoFieldDescription {
 
 		// There may be additional parameters, in/ parentheses.
 		$matches = [];
-		$foundMatch2 = preg_match( '/([^(]*)\s*\((.*)\)/s', $fieldDescriptionStr, $matches );
+		$foundMatch2 = preg_match( '/([^(]*)\s*\((.*)\)/s', $fieldDescriptionStr ?? '', $matches );
 		$allowedValuesParam = "";
 		if ( $foundMatch2 ) {
 			$fieldDescriptionStr = trim( $matches[1] );
